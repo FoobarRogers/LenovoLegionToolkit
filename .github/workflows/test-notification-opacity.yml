@@ -29,14 +29,14 @@ jobs:
         run: dotnet restore LenovoLegionToolkit.sln
 
       - name: Publish LLT WPF
-        run: dotnet publish LenovoLegionToolkit.WPF -c Release -o build-test1 /p:DebugType=None /p:FileVersion=2.36.0.0 /p:Version=2.36.0.0
+        run: dotnet publish LenovoLegionToolkit.WPF -c Release -o build-test2 /p:DebugType=None /p:FileVersion=2.36.0.0 /p:Version=2.36.0.0
 
       - name: Create patch payload
         shell: powershell
         run: |
           New-Item -ItemType Directory -Force -Path patch-payload | Out-Null
-          Copy-Item "build-test1\Lenovo Legion Toolkit.dll" "patch-payload\"
-          Copy-Item "build-test1\LenovoLegionToolkit.Lib.dll" "patch-payload\"
+          Copy-Item "build-test2\Lenovo Legion Toolkit.dll" "patch-payload\"
+          Copy-Item "build-test2\LenovoLegionToolkit.Lib.dll" "patch-payload\"
 
           @'
           @echo off
@@ -53,25 +53,25 @@ jobs:
 
           taskkill /IM "Lenovo Legion Toolkit.exe" /F >nul 2>&1
 
-          set "BACKUP=%TARGET%\backup-notification-opacity-test1"
+          set "BACKUP=%TARGET%\backup-notification-opacity-test2"
           if not exist "%BACKUP%" mkdir "%BACKUP%"
 
-          for %%F in ("Lenovo Legion Toolkit.dll" "LenovoLegionToolkit.Lib.dll") do (
+          for %%F in ("Lenovo Legion Toolkit.dll") do (
             if exist "%TARGET%\%%~F" copy /Y "%TARGET%\%%~F" "%BACKUP%\%%~F" >nul
             copy /Y "%~dp0%%~F" "%TARGET%\%%~F" >nul || exit /b 1
           )
 
           echo.
-          echo [OK] Notification opacity test1 patch applied.
+          echo [OK] Notification opacity test2 patch applied.
           echo Backup: %BACKUP%
           pause
-          '@ | Set-Content -Encoding ASCII "patch-payload\INSTALL_TEST1.bat"
+          '@ | Set-Content -Encoding ASCII "patch-payload\INSTALL_TEST2.bat"
 
           @'
           @echo off
           setlocal
           set "TARGET=%ProgramFiles%\LenovoLegionToolkit"
-          set "BACKUP=%TARGET%\backup-notification-opacity-test1"
+          set "BACKUP=%TARGET%\backup-notification-opacity-test2"
 
           if not exist "%BACKUP%" (
             echo [ERROR] Backup folder not found:
@@ -82,52 +82,53 @@ jobs:
 
           taskkill /IM "Lenovo Legion Toolkit.exe" /F >nul 2>&1
 
-          for %%F in ("Lenovo Legion Toolkit.dll" "LenovoLegionToolkit.Lib.dll") do (
+          for %%F in ("Lenovo Legion Toolkit.dll") do (
             if exist "%BACKUP%\%%~F" copy /Y "%BACKUP%\%%~F" "%TARGET%\%%~F" >nul || exit /b 1
           )
 
           echo.
           echo [OK] Original files restored.
           pause
-          '@ | Set-Content -Encoding ASCII "patch-payload\ROLLBACK_TEST1.bat"
+          '@ | Set-Content -Encoding ASCII "patch-payload\ROLLBACK_TEST2.bat"
 
           @'
-          LLT Team 2.36.0 notification opacity test1
+          LLT Team 2.36.0 notification background opacity test2
 
           Base commit:
           6c86eb8afb76a124be9339e01fb7900df354765d
 
           Patch behavior:
-          - Adds a global notification opacity control (25% to 100%, 5% steps).
+          - Adds a global notification background opacity control (25% to 100%, 5% steps).
           - Applies to Caps Lock, Num Lock, Fn Lock, power mode and other LLT notification windows.
-          - test1 changes the opacity of the whole window, so background, icon and text fade together.
+          - test2 changes only the notification background opacity; icon and text stay fully opaque.
           - FPS/CPU/GPU sensor OSD opacity is separate and unchanged.
-          - The signed official EXE is intentionally NOT replaced. Only the two managed assemblies are patched, preserving UIAccess/signature behavior.
+          - Only Lenovo Legion Toolkit.dll is replaced. The official EXE and LenovoLegionToolkit.Lib.dll remain untouched.
 
           Install:
           1. Exit LLT.
-          2. Run INSTALL_TEST1.bat as administrator.
+          2. Run INSTALL_TEST2.bat as administrator.
           3. Start LLT and open notification settings.
           4. Set opacity to 50% for an obvious test.
           5. Press Caps Lock / Num Lock / Fn Lock.
+          6. Verify Hardware Sensors still opens without assembly errors.
 
           Rollback:
-          Run ROLLBACK_TEST1.bat as administrator.
+          Run ROLLBACK_TEST2.bat as administrator.
 
           Default installer path:
           C:\Program Files\LenovoLegionToolkit
           '@ | Set-Content -Encoding UTF8 "patch-payload\README.txt"
 
-          Compress-Archive -Path "patch-payload\*" -DestinationPath "LLT-Team-2.36.0-notification-opacity-test1-replace.zip" -Force
+          Compress-Archive -Path "patch-payload\*" -DestinationPath "LLT-Team-2.36.0-notification-opacity-test2-replace.zip" -Force
 
       - name: Upload full publish
         uses: actions/upload-artifact@v4
         with:
-          name: llt-notification-opacity-test1-full
-          path: build-test1
+          name: llt-notification-opacity-test2-full
+          path: build-test2
 
       - name: Upload replacement patch
         uses: actions/upload-artifact@v4
         with:
-          name: llt-notification-opacity-test1-replace
-          path: LLT-Team-2.36.0-notification-opacity-test1-replace.zip
+          name: llt-notification-opacity-test2-replace
+          path: LLT-Team-2.36.0-notification-opacity-test2-replace.zip
