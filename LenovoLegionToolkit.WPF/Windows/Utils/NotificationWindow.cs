@@ -25,6 +25,7 @@ public class NotificationWindow : UiWindow, INotificationWindow
     private const int PositionMargin = 16;
 
     private readonly ScreenInfo _screenInfo;
+    private readonly double _backgroundOpacity;
 
     private readonly Grid _mainGrid = new()
     {
@@ -58,14 +59,12 @@ public class NotificationWindow : UiWindow, INotificationWindow
     public NotificationWindow(SymbolRegular symbol, SymbolRegular? overlaySymbol, Action<SymbolIcon>? symbolTransform, string text, Brush? textColor, Action? clickAction, ScreenInfo screenInfo, NotificationPosition position, double backgroundOpacity)
     {
         InitializeStyle();
-        ApplyBackgroundOpacity(backgroundOpacity);
         InitializeContent(symbol, overlaySymbol, symbolTransform, text, textColor);
 
         ShowInTaskbar = false;
-        SourceInitialized += OnSourceInitialized;
-
 
         _screenInfo = screenInfo;
+        _backgroundOpacity = backgroundOpacity;
 
         SourceInitialized += (_, _) => InitializePosition(screenInfo.WorkArea, screenInfo.DpiX, screenInfo.DpiY, position);
         MouseDown += (_, _) =>
@@ -74,12 +73,20 @@ public class NotificationWindow : UiWindow, INotificationWindow
             clickAction?.Invoke();
         };
     }
-    private void OnSourceInitialized(object? sender, EventArgs e)
+    protected override void OnSourceInitialized(EventArgs e)
     {
+        base.OnSourceInitialized(e);
+
         if (PresentationSource.FromVisual(this) is not HwndSource source)
-        {
             return;
-        }
+
+        // WPF-UI 2.1 UiWindow restores an opaque ApplicationBackgroundBrush when
+        // WindowBackdropType=None during base.OnSourceInitialized(). Apply our
+        // translucent background only after that logic has completed.
+        if (source.CompositionTarget is not null)
+            source.CompositionTarget.BackgroundColor = Colors.Transparent;
+
+        ApplyBackgroundOpacity(_backgroundOpacity);
 
         var hwnd = (HWND)source.Handle;
         var extendedStyle = (WINDOW_EX_STYLE)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
@@ -123,11 +130,14 @@ public class NotificationWindow : UiWindow, INotificationWindow
     {
         opacity = Math.Clamp(opacity, 0.25, 1.0);
 
-        if (FindResource("ApplicationBackgroundBrush") is Brush backgroundBrush)
+        if (FindResource("ApplicationBackgroundBrush") is SolidColorBrush backgroundBrush)
         {
-            var brush = backgroundBrush.CloneCurrentValue();
-            brush.Opacity = opacity;
-            Background = brush;
+            var color = backgroundBrush.Color;
+            Background = new SolidColorBrush(Color.FromArgb(
+                (byte)Math.Round(255 * opacity),
+                color.R,
+                color.G,
+                color.B));
         }
     }
 
