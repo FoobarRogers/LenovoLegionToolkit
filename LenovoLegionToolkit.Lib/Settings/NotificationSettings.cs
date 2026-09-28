@@ -35,7 +35,6 @@ public class NotificationSettings() : AbstractSettings<NotificationSettings.Noti
         public bool DontShowNotifications { get; set; }
         public NotificationPosition NotificationPosition { get; set; } = NotificationPosition.BottomCenter;
         public NotificationDuration NotificationDuration { get; set; } = NotificationDuration.Normal;
-        public double NotificationOpacity { get; set; } = 1.0;
         public bool NotificationAlwaysOnTop { get; set; }
         public bool NotificationOnAllScreens { get; set; }
         public Notifications Notifications { get; set; } = new();
