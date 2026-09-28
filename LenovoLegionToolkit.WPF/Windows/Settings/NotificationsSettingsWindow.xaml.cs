@@ -19,6 +19,7 @@ public partial class NotificationsSettingsWindow
     private IEnumerable<CardControl> Cards =>
     [
         _notificationPositionCard,
+        _notificationOpacityCard,
         _notificationDurationCard,
         _updateAvailableCard,
         _capsLockCard,
@@ -46,7 +47,11 @@ public partial class NotificationsSettingsWindow
         _notificationOnAllScreensToggle.IsChecked = _settings.Store.NotificationOnAllScreens;
 
         _notificationPositionComboBox.SetItems(Enum.GetValues<NotificationPosition>(), _settings.Store.NotificationPosition, v => v.GetDisplayName());
+        _notificationOpacitySlider.Value = Math.Clamp(_settings.Store.NotificationOpacity, 0.25, 1.0);
+        _notificationOpacityValueText.Text = $"{_notificationOpacitySlider.Value * 100:0}%";
         _notificationDurationComboBox.SetItems(Enum.GetValues<NotificationDuration>(), _settings.Store.NotificationDuration, v => v.GetDisplayName());
+
+        _notificationOpacitySlider.ValueChanged += NotificationOpacitySlider_ValueChanged;
 
         _updateAvailableToggle.IsChecked = _settings.Store.Notifications.UpdateAvailable;
         _capsLockToggle.IsChecked = _settings.Store.Notifications.CapsLock;
@@ -113,6 +118,15 @@ public partial class NotificationsSettingsWindow
             return;
 
         _settings.Store.NotificationPosition = state;
+        _settings.SynchronizeStore();
+    }
+
+    private void NotificationOpacitySlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        var value = Math.Clamp(_notificationOpacitySlider.Value, 0.25, 1.0);
+
+        _settings.Store.NotificationOpacity = value;
+        _notificationOpacityValueText.Text = $"{value * 100:0}%";
         _settings.SynchronizeStore();
     }
 
