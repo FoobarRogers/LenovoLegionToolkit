@@ -55,9 +55,10 @@ public class NotificationWindow : UiWindow, INotificationWindow
         VerticalContentAlignment = VerticalAlignment.Center,
     };
 
-    public NotificationWindow(SymbolRegular symbol, SymbolRegular? overlaySymbol, Action<SymbolIcon>? symbolTransform, string text, Brush? textColor, Action? clickAction, ScreenInfo screenInfo, NotificationPosition position)
+    public NotificationWindow(SymbolRegular symbol, SymbolRegular? overlaySymbol, Action<SymbolIcon>? symbolTransform, string text, Brush? textColor, Action? clickAction, ScreenInfo screenInfo, NotificationPosition position, double backgroundOpacity)
     {
         InitializeStyle();
+        ApplyBackgroundOpacity(backgroundOpacity);
         InitializeContent(symbol, overlaySymbol, symbolTransform, text, textColor);
 
         ShowInTaskbar = false;
@@ -116,6 +117,18 @@ public class NotificationWindow : UiWindow, INotificationWindow
 
         _mainGrid.FlowDirection = LocalizationHelper.Direction;
         _textBlock.Foreground = (SolidColorBrush)FindResource("TextFillColorPrimaryBrush");
+    }
+
+    private void ApplyBackgroundOpacity(double opacity)
+    {
+        opacity = Math.Clamp(opacity, 0.25, 1.0);
+
+        if (FindResource("ApplicationBackgroundBrush") is Brush backgroundBrush)
+        {
+            var brush = backgroundBrush.CloneCurrentValue();
+            brush.Opacity = opacity;
+            Background = brush;
+        }
     }
 
     private void InitializePosition(Rect workArea, uint dpiX, uint dpiY, NotificationPosition position)
