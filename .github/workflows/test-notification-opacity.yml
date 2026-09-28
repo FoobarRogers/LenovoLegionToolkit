@@ -57,7 +57,7 @@ jobs:
           set "BACKUP=%TARGET%\backup-notification-opacity-test1"
           if not exist "%BACKUP%" mkdir "%BACKUP%"
 
-          for %%F in ("Lenovo Legion Toolkit.exe" "Lenovo Legion Toolkit.dll" "LenovoLegionToolkit.Lib.dll") do (
+          for %%F in ("Lenovo Legion Toolkit.dll" "LenovoLegionToolkit.Lib.dll") do (
             if exist "%TARGET%\%%~F" copy /Y "%TARGET%\%%~F" "%BACKUP%\%%~F" >nul
             copy /Y "%~dp0%%~F" "%TARGET%\%%~F" >nul || exit /b 1
           )
@@ -83,7 +83,7 @@ jobs:
 
           taskkill /IM "Lenovo Legion Toolkit.exe" /F >nul 2>&1
 
-          for %%F in ("Lenovo Legion Toolkit.exe" "Lenovo Legion Toolkit.dll" "LenovoLegionToolkit.Lib.dll") do (
+          for %%F in ("Lenovo Legion Toolkit.dll" "LenovoLegionToolkit.Lib.dll") do (
             if exist "%BACKUP%\%%~F" copy /Y "%BACKUP%\%%~F" "%TARGET%\%%~F" >nul || exit /b 1
           )
 
@@ -103,6 +103,7 @@ jobs:
           - Applies to Caps Lock, Num Lock, Fn Lock, power mode and other LLT notification windows.
           - test1 changes the opacity of the whole window, so background, icon and text fade together.
           - FPS/CPU/GPU sensor OSD opacity is separate and unchanged.
+          - The signed official EXE is intentionally NOT replaced. Only the two managed assemblies are patched, preserving UIAccess/signature behavior.
 
           Install:
           1. Exit LLT.
