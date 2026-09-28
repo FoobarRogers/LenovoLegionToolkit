@@ -29,7 +29,7 @@ jobs:
         run: dotnet restore LenovoLegionToolkit.sln
 
       - name: Publish LLT WPF
-        run: dotnet publish LenovoLegionToolkit.WPF -c Release -o build-test1 /p:DebugType=None /p:FileVersion=2.36.0.1 /p:Version=2.36.0.1
+        run: dotnet publish LenovoLegionToolkit.WPF -c Release -o build-test1 /p:DebugType=None /p:FileVersion=2.36.0.0 /p:Version=2.36.0.0
 
       - name: Create patch payload
         shell: powershell
@@ -37,7 +37,6 @@ jobs:
           New-Item -ItemType Directory -Force -Path patch-payload | Out-Null
           Copy-Item "build-test1\Lenovo Legion Toolkit.dll" "patch-payload\"
           Copy-Item "build-test1\LenovoLegionToolkit.Lib.dll" "patch-payload\"
-          Copy-Item "build-test1\Lenovo Legion Toolkit.exe" "patch-payload\"
 
           @'
           @echo off
