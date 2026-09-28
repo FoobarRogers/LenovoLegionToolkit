@@ -256,6 +256,7 @@ public class NotificationsManager
     private void ShowOnScreen(ScreenInfo screen, int duration, SymbolRegular symbol, SymbolRegular? overlaySymbol, Action<SymbolIcon>? symbolTransform, string text, Brush? textColor, Action? clickAction, NotificationPosition position)
     {
         var nw = new NotificationWindow(symbol, overlaySymbol, symbolTransform, text, textColor, clickAction, screen, position);
+        nw.Opacity = Math.Clamp(_settings.Store.NotificationOpacity, 0.25, 1.0);
         if (_settings.Store.NotificationAlwaysOnTop)
         {
             nw.SourceInitialized += (_, _) => nw.EscalateZBand();
