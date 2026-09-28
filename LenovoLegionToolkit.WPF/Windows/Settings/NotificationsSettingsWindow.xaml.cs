@@ -8,6 +8,7 @@ using LenovoLegionToolkit.Lib.Extensions;
 using LenovoLegionToolkit.Lib.Settings;
 using LenovoLegionToolkit.WPF.Extensions;
 using LenovoLegionToolkit.WPF.Resources;
+using LenovoLegionToolkit.WPF.Utils;
 using Wpf.Ui.Controls;
 
 namespace LenovoLegionToolkit.WPF.Windows.Settings;
@@ -47,7 +48,7 @@ public partial class NotificationsSettingsWindow
         _notificationOnAllScreensToggle.IsChecked = _settings.Store.NotificationOnAllScreens;
 
         _notificationPositionComboBox.SetItems(Enum.GetValues<NotificationPosition>(), _settings.Store.NotificationPosition, v => v.GetDisplayName());
-        _notificationOpacitySlider.Value = Math.Clamp(_settings.Store.NotificationOpacity, 0.25, 1.0);
+        _notificationOpacitySlider.Value = NotificationOpacityPatchSettings.Load();
         _notificationOpacityValueText.Text = $"{_notificationOpacitySlider.Value * 100:0}%";
         _notificationDurationComboBox.SetItems(Enum.GetValues<NotificationDuration>(), _settings.Store.NotificationDuration, v => v.GetDisplayName());
 
@@ -125,9 +126,8 @@ public partial class NotificationsSettingsWindow
     {
         var value = Math.Clamp(_notificationOpacitySlider.Value, 0.25, 1.0);
 
-        _settings.Store.NotificationOpacity = value;
+        NotificationOpacityPatchSettings.Save(value);
         _notificationOpacityValueText.Text = $"{value * 100:0}%";
-        _settings.SynchronizeStore();
     }
 
     private void NotificationDurationComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
