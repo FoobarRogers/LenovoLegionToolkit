@@ -97,6 +97,29 @@
                         SelectionChanged="NotificationPositionComboBox_SelectionChanged" />
                 </custom:CardControl>
 
+                <custom:CardControl x:Name="_notificationOpacityCard" Margin="0,0,0,8">
+                    <custom:CardControl.Header>
+                        <controls:CardHeaderControl Title="{x:Static resources:Resource.OsdSettings_Appearance_Opacity}" />
+                    </custom:CardControl.Header>
+                    <StackPanel
+                        MinWidth="200"
+                        Margin="0,0,0,8">
+                        <Slider
+                            x:Name="_notificationOpacitySlider"
+                            Minimum="0.25"
+                            Maximum="1"
+                            SmallChange="0.05"
+                            LargeChange="0.1"
+                            TickFrequency="0.05"
+                            IsSnapToTickEnabled="True" />
+                        <TextBlock
+                            x:Name="_notificationOpacityValueText"
+                            Margin="0,4,0,0"
+                            HorizontalAlignment="Right"
+                            Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                </custom:CardControl>
+
                 <custom:CardControl x:Name="_notificationDurationCard" Margin="0,0,0,24">
                     <custom:CardControl.Header>
                         <controls:CardHeaderControl Title="{x:Static resources:Resource.NotificationsSettingsWindow_NotificationDuration_Title}" />
