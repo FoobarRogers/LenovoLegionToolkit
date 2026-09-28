@@ -36,7 +36,6 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path patch-payload | Out-Null
           Copy-Item "build-test2\Lenovo Legion Toolkit.dll" "patch-payload\"
-          Copy-Item "build-test2\LenovoLegionToolkit.Lib.dll" "patch-payload\"
 
           @'
           @echo off
